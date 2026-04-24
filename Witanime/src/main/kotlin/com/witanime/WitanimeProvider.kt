@@ -88,7 +88,7 @@ class WitAnime : MainAPI() {
             if (items.isNotEmpty()) homePageList.add(HomePageList(title, items))
         }
 
-        return HomePageResponse(homePageList)
+        return newHomePageResponse(homePageList)
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
@@ -399,11 +399,31 @@ class WitAnime : MainAPI() {
         fun findServerElements(html: String): List<Pair<String, String>> {
             val items = mutableListOf<Pair<String, String>>()
 
-            val serverRegex = Regex(
-                """<([a-z0-9]+)[^>]+class=["'][^"']*(?:server-link|server-item|video-item|dooplay_player_option)[^"']*["'][^>]*>(.*?)</\1>""",
-                RegexOption.DOT_MATCHES_ALL or RegexOption.IGNORE_CASE
+            // Target watch servers specifically (from your screenshot)
+            val watchRegex = Regex(
+                """<(?:a|li|div|span)[^>]+(?:data-server-id|data-id|data-url|data-nume)=["']([^"']+)["'][^>]*>(.*?)</""",
+                setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE)
             )
-            for (m in serverRegex.findAll(html)) {
+            
+            watchRegex.findAll(html).forEach { m ->
+                val sid = m.groupValues[1]
+                val content = m.groupValues[2]
+                
+                // Clean up the label (e.g., "streamwish - FHD")
+                val label = content.replace(Regex("<[^>]*>"), "").trim()
+                
+                if (label.isNotBlank() && (label.contains(Regex("FHD|HD|SD|multi|stream|watch|مشاهدة|player", RegexOption.IGNORE_CASE)) || sid.length > 5)) {
+                    items.add(sid to label)
+                }
+            }
+
+            // Fallback to class-based detection
+            val serverRegex = Regex(
+                """<([a-z0-9]+)[^>]+class=["'][^"']*(?:server-link|server-item|video-item|dooplay_player_option|episode-link|ser-link)[^"']*["'][^>]*>(.*?)</\1>""",
+                setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE)
+            )
+            
+            serverRegex.findAll(html).forEach { m ->
                 val tag = m.value
                 val content = m.groupValues[2]
 
@@ -412,92 +432,61 @@ class WitAnime : MainAPI() {
                     ?: Regex("""data-id=["']([^"']+)["']""").find(tag)?.groupValues?.get(1)
                     ?: Regex("""data-nume=["']([^"']+)["']""").find(tag)?.groupValues?.get(1)
 
-                val label = Regex("""<span[^>]+class=["'][^"']*ser[^"']*["'][^>]*>(.*?)</span>""", RegexOption.DOT_MATCHES_ALL).find(tag)?.groupValues?.get(1)
-                    ?: Regex("""<span[^>]+class=["'][^"']*title[^"']*["'][^>]*>(.*?)</span>""", RegexOption.DOT_MATCHES_ALL).find(tag)?.groupValues?.get(1)
-                    ?: Regex("""<span[^>]*>(.*?)</span>""", RegexOption.DOT_MATCHES_ALL).find(tag)?.groupValues?.get(1)
+                val label = Regex("""<span[^>]*>(.*?)</span>""", RegexOption.DOT_MATCHES_ALL).find(tag)?.groupValues?.get(1)
                     ?: content.replace(Regex("<[^>]*>"), "").trim()
 
-                if (sid != null) items.add(sid to (label.ifBlank { "server-$sid" }))
+                if (sid != null && items.none { it.first == sid }) {
+                    items.add(sid to (label.ifBlank { "Server $sid" }))
+                }
             }
             return items
+        }
+
+        fun base64DecodeSafe(input: String?): String {
+            if (input.isNullOrBlank()) return ""
+            val cleaned = input.replace(Regex("[^A-Za-z0-9+/=]"), "")
+            return try {
+                String(android.util.Base64.decode(cleaned, android.util.Base64.DEFAULT), Charsets.UTF_8)
+            } catch (e: Exception) {
+                try {
+                    val reversed = cleaned.reversed()
+                    String(android.util.Base64.decode(reversed, android.util.Base64.DEFAULT), Charsets.UTF_8)
+                } catch (e2: Exception) {
+                    ""
+                }
+            }
+        }
+
+        fun parseRegistry(encoded: String?): Any? {
+            val decoded = base64DecodeSafe(encoded)
+            if (decoded.isBlank()) return null
+            return try {
+                if (decoded.trim().startsWith("[")) JSONArray(decoded) else JSONObject(decoded)
+            } catch (e: Exception) {
+                null
+            }
         }
 
         return try {
 
             var html = fetchUrl(data)
 
-            var zG: String? = Regex("""var\s+_zG\s*=\s*["']([^"']+)["']""").find(html)?.groupValues?.get(1)
-            var zH: String? = Regex("""var\s+_zH\s*=\s*["']([^"']+)["']""").find(html)?.groupValues?.get(1)
+            val zGMatch = Regex("""var\s+(_zG|_zF|_zA|_zH|_zI)\s*=\s*["']([^"']+)["']""").find(html)
+            val zHMatch = Regex("""var\s+(_zH|_zG|_zF|_zA|_zI)\s*=\s*["']([^"']+)["']""").findAll(html).lastOrNull()
+            
+            var zG = zGMatch?.groupValues?.get(2)
+            var zH = zHMatch?.groupValues?.get(2)
 
             if (zG.isNullOrBlank() || zH.isNullOrBlank()) {
-
-                val inlineScripts =
-                    Regex("""<script[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL).findAll(
-                        html
-                    ).map { it.groupValues[1] }.toList()
+                val inlineScripts = Regex("""<script[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL).findAll(html).map { it.groupValues[1] }
                 for (s in inlineScripts) {
-                    if (zG.isNullOrBlank()) zG =
-                        Regex("""var\s+_zG\s*=\s*["']([^"']+)["']""").find(s)?.groupValues?.get(1)
-                    if (zH.isNullOrBlank()) zH =
-                        Regex("""var\s+_zH\s*=\s*["']([^"']+)["']""").find(s)?.groupValues?.get(1)
-                    if (!zG.isNullOrBlank() && !zH.isNullOrBlank()) break
+                    if (zG.isNullOrBlank()) zG = Regex("""var\s+(_zG|_zF|_zA|_zH|_zI)\s*=\s*["']([^"']+)["']""").find(s)?.groupValues?.get(2)
+                    if (zH.isNullOrBlank()) zH = Regex("""var\s+(_zH|_zG|_zF|_zA|_zI)\s*=\s*["']([^"']+)["']""").findAll(s).lastOrNull()?.groupValues?.get(2)
                 }
             }
 
-            if (zG.isNullOrBlank() || zH.isNullOrBlank()) {
-
-                val scriptSrcs = Regex(
-                    """<script[^>]+src=[\"']([^\"']+)[\"'][^>]*>""",
-                    RegexOption.IGNORE_CASE
-                ).findAll(html).map { it.groupValues[1] }.toList()
-                for (src in scriptSrcs) {
-                    val srcUrl = if (src.startsWith("http")) src else {
-
-                        try {
-                            java.net.URL(java.net.URL(data), src).toString()
-                        } catch (e: Exception) {
-                            src
-                        }
-                    }
-                    val jsText = fetchUrl(srcUrl)
-                    if (zG.isNullOrBlank()) zG =
-                        Regex("""var\s+_zG\s*=\s*\"([^\"]+)\"""").find(jsText)?.groupValues?.get(1)
-                    if (zH.isNullOrBlank()) zH =
-                        Regex("""var\s+_zH\s*=\s*\"([^\"]+)\"""").find(jsText)?.groupValues?.get(1)
-                    if (!zG.isNullOrBlank() && !zH.isNullOrBlank()) break
-                }
-            }
-
-            val resourceRegistryObj: Any? = try {
-                val dec = base64DecodeBytes(zG).let { bytesToStringSafe(it) }
-                try {
-                    JSONObject(dec)
-                } catch (e: Exception) {
-
-                    try {
-                        JSONArray(dec)
-                    } catch (e2: Exception) {
-                        null
-                    }
-                }
-            } catch (e: Exception) {
-                null
-            }
-
-            val configRegistryObj: Any? = try {
-                val dec = base64DecodeBytes(zH).let { bytesToStringSafe(it) }
-                try {
-                    JSONObject(dec)
-                } catch (e: Exception) {
-                    try {
-                        JSONArray(dec)
-                    } catch (e2: Exception) {
-                        null
-                    }
-                }
-            } catch (e: Exception) {
-                null
-            }
+            val resourceRegistryObj = parseRegistry(zG)
+            val configRegistryObj = parseRegistry(zH)
 
             val serversList = findServerElements(html).toMutableList()
 
