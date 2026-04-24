@@ -17,5 +17,23 @@
     "internalName": "Witanime",
     "url": "https://github.com/oman505/9vsv6/raw/main/Witanime.cs3",
     "name": "Witanime"
+  },
+  {
+    "iconUrl": "https://animhq.com/wp-content/uploads/2023/04/cropped-cropped-Capture-1-192x192.png",
+    "apiVersion": 1,
+    "repositoryUrl": "https://github.com/oman505/9vsv6",
+    "fileSize": 15000,
+    "status": 1,
+    "language": "ar",
+    "authors": [
+      "oman505"
+    ],
+    "tvTypes": [
+      "Anime"
+    ],
+    "version": 1,
+    "internalName": "Animhq",
+    "url": "https://github.com/oman505/9vsv6/raw/main/Animhq.cs3",
+    "name": "Animhq"
   }
 ]
