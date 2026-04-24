@@ -15,7 +15,7 @@
     ],
     "version": 1,
     "internalName": "Witanime",
-    "url": "https://github.com/oman505/9vsv6/raw/main/Witanime.cs3",
+    "url": "https://github.com/oman505/9vsv6/blob/main/build/Witanime.cs3",
     "name": "Witanime"
   },
   {
@@ -33,7 +33,7 @@
     ],
     "version": 1,
     "internalName": "Animhq",
-    "url": "https://github.com/oman505/9vsv6/raw/main/Animhq.cs3",
+    "url": "https://github.com/oman505/9vsv6/blob/main/build/Animhq.cs3",
     "name": "Animhq"
   }
 ]
