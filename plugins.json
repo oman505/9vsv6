@@ -6,16 +6,11 @@
     "fileSize": 18732,
     "status": 1,
     "language": "ar",
-    "authors": [
-      "oman505"
-    ],
-    "tvTypes": [
-      "TvSeries",
-      "Movie"
-    ],
+    "authors": ["oman505"],
+    "tvTypes": ["TvSeries", "Movie"],
     "version": 1,
     "internalName": "Witanime",
-    "url": "https://github.com/oman505/9vsv6/raw/main/build/Witanime.cs3",
+    "url": "https://raw.githubusercontent.com/oman505/9vsv6/main/build/Witanime.cs3",
     "name": "Witanime"
   },
   {
@@ -25,15 +20,11 @@
     "fileSize": 15000,
     "status": 1,
     "language": "ar",
-    "authors": [
-      "oman505"
-    ],
-    "tvTypes": [
-      "Anime"
-    ],
+    "authors": ["oman505"],
+    "tvTypes": ["Anime"],
     "version": 1,
     "internalName": "Animhq",
-    "url": "https://github.com/oman505/9vsv6/raw/main/build/Animhq.cs3",
+    "url": "https://raw.githubusercontent.com/oman505/9vsv6/main/build/Animhq.cs3",
     "name": "Animhq"
   },
   {
@@ -43,15 +34,11 @@
     "fileSize": 15000,
     "status": 1,
     "language": "ar",
-    "authors": [
-      "oman505"
-    ],
-    "tvTypes": [
-      "Anime"
-    ],
+    "authors": ["oman505"],
+    "tvTypes": ["Anime"],
     "version": 1,
     "internalName": "Ristoanime",
-    "url": "https://github.com/oman505/9vsv6/raw/main/build/Ristoanime.cs3",
+    "url": "https://raw.githubusercontent.com/oman505/9vsv6/main/build/Ristoanime.cs3",
     "name": "Ristoanime"
   }
 ]
