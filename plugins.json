@@ -10,11 +10,12 @@
       "oman505"
     ],
     "tvTypes": [
-      "anime"
+      "TvSeries",
+      "Movie"
     ],
     "version": 1,
     "internalName": "Witanime",
-    "url": "https://github.com/oman505/9vsv6/raw/refs/heads/main/build/Witanime.cs3",
+    "url": "https://github.com/oman505/9vsv6/raw/main/Witanime.cs3",
     "name": "Witanime"
   }
 ]
