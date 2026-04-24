@@ -15,7 +15,7 @@
     ],
     "version": 1,
     "internalName": "Witanime",
-    "url": "https://github.com/oman505/9vsv6/raw/main/builds/Witanime.cs3",
+    "url": "https://github.com/oman505/9vsv6/raw/main/build/Witanime.cs3",
     "name": "Witanime"
   },
   {
@@ -33,7 +33,7 @@
     ],
     "version": 1,
     "internalName": "Animhq",
-    "url": "https://github.com/oman505/9vsv6/raw/main/builds/Animhq.cs3",
+    "url": "https://github.com/oman505/9vsv6/raw/main/build/Animhq.cs3",
     "name": "Animhq"
   },
   {
@@ -51,7 +51,7 @@
     ],
     "version": 1,
     "internalName": "Ristoanime",
-    "url": "https://github.com/oman505/9vsv6/raw/main/builds/Ristoanime.cs3",
+    "url": "https://github.com/oman505/9vsv6/raw/main/build/Ristoanime.cs3",
     "name": "Ristoanime"
   }
 ]
