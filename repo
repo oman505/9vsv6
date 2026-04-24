@@ -1,0 +1,6 @@
+{
+  "name": "Oman505 Repo",
+  "description": "إضافات عربية لتطبيق Cloudstream - من إنتاج oman505",
+  "manifestVersion": 1,
+  "pluginLists": ["https://raw.githubusercontent.com/oman505/9vsv6/refs/heads/main/plugins.json"]
+}
